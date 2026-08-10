@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ================================================================
+   EDIT ME — everything you need to personalise is right here.
+   ================================================================ */
+:root{
+  --name: "Alex";                 /* also set in JS CONFIG below */
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+:root{
+  --cream:#FBF3E3;
+  --paper:#FCF8ED;
+  --red:#C1272D;
+  --red-dark:#8C1C21;
+  --gingham:#D9524B;
+  --pink:#F3A9B4;
+  --charcoal:#15120E;
+  --ink:#3A2A20;
+}
+
+html,body{
+  height:100%;
+  background:var(--charcoal);
+  color:var(--ink);
+  font-family:'Baloo 2', sans-serif;
+  overflow:hidden;
+}
+
+body{
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.03), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,0.03), transparent 40%);
+}
+
+canvas#confetti{
+  position:fixed; inset:0;
+  width:100%; height:100%;
+  pointer-events:none;
+  z-index:999;
+}
+
+/* ---------- STAGE / SCREENS ---------- */
+.stage{
+  position:relative;
+  width:100%;
+  height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+
+.screen{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  opacity:0;
+  transform:translateX(40px) scale(0.98);
+  pointer-events:none;
+  transition:opacity 0.5s ease, transform 0.5s ease;
+  overflow-y:auto;
+}
+.screen.active{ pointer-events:auto; }
+.screen::-webkit-scrollbar{ width:0; height:0; }
+.screen.active{
+  opacity:1;
+  transform:translateX(0) scale(1);
+  pointer-events:auto;
+}
+.screen.leaving{
+  transform:translateX(-40px) scale(0.98);
+}
+
+/* ---------- GINGHAM CARD ---------- */
+.card{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  background:
+    repeating-linear-gradient(45deg, var(--gingham) 0 10px, transparent 10px 20px),
+    repeating-linear-gradient(-45deg, var(--gingham) 0 10px, transparent 10px 20px),
+    var(--paper);
+  background-size:100% 100%;
+  padding:10px;
+  border-radius:22px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  transition:max-width 0.3s ease;
+}
+.card-inner{
+  background:var(--paper);
+  border-radius:16px;
+  padding:34px 26px 28px;
+  min-height:420px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:16px;
+  position:relative;
+  background-image:
+    radial-gradient(circle, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size:6px 6px;
+  overflow:visible;
+}
+
+/* ---------- LANDSCAPE / LAPTOP LAYOUT ---------- */
+@media (min-width:860px) and (min-aspect-ratio:1/1){
+  .stage{ padding:30px 60px; }
+  .card{ max-width:1000px; }
+  .card-inner{ min-height:480px; padding:50px 70px; }
+  .card-inner.split{
+    flex-direction:row;
+    align-items:center;
+    text-align:left;
+    gap:48px;
+  }
+  .card-inner.split.reverse{ flex-direction:row-reverse; }
+  .card-inner.split .text-col{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:16px;
+    flex:1;
+  }
+  .card-inner.split .btn-row{ justify-content:flex-start; }
+  .card-inner.split .photo-frame.sticker{
+    width:220px; height:220px;
+    flex-shrink:0;
+  }
+  .headline{ text-align:inherit; }
+}
+
+/* ---------- GOOFY PHOTO STICKERS ---------- */
+.photo-frame.sticker{
+  width:190px;
+  height:190px;
+  border:8px solid white;
+  box-shadow:0 12px 26px rgba(0,0,0,0.32);
+  transform:rotate(-7deg);
+  font-size:12px;
+}
+.corner-sticker{
+  position:absolute;
+  width:100px;
+  height:100px;
+  border:6px solid white;
+  border-radius:10px;
+  box-shadow:0 10px 22px rgba(0,0,0,0.3);
+  background:repeating-linear-gradient(45deg,#f0e2c8,#f0e2c8 6px,#e6d4ae 6px,#e6d4ae 12px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  color:#a0895f;
+  text-align:center;
+  z-index:6;
+}
+.corner-sticker img{ width:100%; height:100%; object-fit:cover; border-radius:4px; }
+.corner-sticker.tr{ top:-26px; right:-22px; transform:rotate(9deg); }
+.corner-sticker.tl{ top:-22px; left:-20px; transform:rotate(-10deg); }
+.corner-sticker.bl{ bottom:-24px; left:-18px; transform:rotate(7deg); width:84px; height:84px; }
+@media (max-width:520px){
+  .corner-sticker{ display:none; }
+}
+
+.progress{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  color:var(--pink);
+  font-family:'Caveat', cursive;
+  font-size:22px;
+  letter-spacing:1px;
+  z-index:10;
+  text-shadow:0 1px 3px rgba(0,0,0,0.5);
+}
+
+.headline{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size:clamp(24px, 6vw, 32px);
+  color:var(--red-dark);
+  line-height:1.15;
+}
+.headline.script{
+  font-family:'Caveat', cursive;
+  font-weight:600;
+  font-size:clamp(30px, 8vw, 42px);
+}
+.sub{
+  font-size:16px;
+  color:var(--ink);
+  opacity:0.8;
+}
+
+.photo-frame{
+  width:170px;
+  height:170px;
+  border-radius:14px;
+  border:6px solid white;
+  box-shadow:0 6px 18px rgba(0,0,0,0.2);
+  background:repeating-linear-gradient(45deg,#f0e2c8,#f0e2c8 8px,#e6d4ae 8px,#e6d4ae 16px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  color:#a0895f;
+  transform:rotate(-2deg);
+  overflow:hidden;
+}
+.photo-frame img{ width:100%; height:100%; object-fit:cover; }
+.photo-frame.round{ border-radius:50%; }
+
+.btn-row{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:auto; }
+
+.pill-btn{
+  font-family:'Baloo 2', sans-serif;
+  font-weight:700;
+  font-size:16px;
+  color:white;
+  background:var(--red);
+  border:none;
+  border-radius:100px;
+  padding:12px 28px;
+  cursor:pointer;
+  box-shadow:0 4px 0 var(--red-dark);
+  transition:transform 0.12s ease, box-shadow 0.12s ease;
+}
+.pill-btn:hover{ transform:translateY(-2px); }
+.pill-btn:active{ transform:translateY(2px); box-shadow:0 1px 0 var(--red-dark); }
+.pill-btn.ghost{
+  background:transparent;
+  color:var(--red-dark);
+  border:2px solid var(--red-dark);
+  box-shadow:none;
+  padding:10px 26px;
+}
+
+.hint{
+  font-family:'Caveat', cursive;
+  font-size:18px;
+  color:var(--red);
+  min-height:22px;
+}
+
+/* ---------- GIFTS ---------- */
+.gifts-row{ display:flex; gap:16px; justify-content:center; }
+.gift{
+  width:80px; height:80px;
+  cursor:pointer;
+  position:relative;
+  transition:transform 0.2s ease;
+}
+.gift:hover{ transform:translateY(-4px) scale(1.05); }
+.gift svg{ width:100%; height:100%; }
+.gift.opened{ pointer-events:none; opacity:0.35; transform:scale(0.9); }
+.gift-reveal{
+  margin-top:8px;
+  font-size:14px;
+  background:#FFF1E6;
+  border:2px dashed var(--pink);
+  border-radius:10px;
+  padding:10px 12px;
+  max-width:380px;
+  display:none;
+}
+.gift-reveal.show{ display:block; animation:pop 0.3s ease; }
+@keyframes pop{ from{ transform:scale(0.9); opacity:0;} to{ transform:scale(1); opacity:1; } }
+
+/* ---------- MESSAGE / LETTER ---------- */
+.message-text{
+  font-size:16px;
+  line-height:1.6;
+  color:var(--ink);
+  max-width:380px;
+  white-space:pre-line;
+}
+.letter{
+  font-family:'Caveat', cursive;
+  font-size:20px;
+  line-height:1.55;
+  color:var(--ink);
+  text-align:left;
+  max-width:380px;
+  white-space:pre-line;
+}
+.ribbon{
+  background:var(--red);
+  color:white;
+  font-family:'Caveat', cursive;
+  font-size:24px;
+  padding:6px 22px;
+  border-radius:4px;
+  transform:rotate(-2deg);
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* ---------- CAKE ---------- */
+.cake-wrap{ font-size:64px; position:relative; line-height:1; }
+.flame{ display:inline-block; animation:flicker 1.1s ease-in-out infinite; }
+.flame.out{ opacity:0; transition:opacity 0.4s ease; }
+@keyframes flicker{
+  0%,100%{ transform:scale(1) rotate(-3deg); }
+  50%{ transform:scale(1.12) rotate(3deg); }
+}
+.smoke{
+  position:absolute;
+  top:-6px; left:50%;
+  width:6px; height:6px;
+  background:rgba(255,255,255,0.5);
+  border-radius:50%;
+  opacity:0;
+}
+
+/* ---------- MEMORIES ---------- */
+.clothesline{
+  width:100%;
+  border-top:2px dashed var(--red-dark);
+  margin-top:6px;
+  position:relative;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:18px;
+  padding-top:18px;
+}
+.polaroid{
+  background:white;
+  padding:8px 8px 20px;
+  width:clamp(110px, 20vw, 170px);
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  cursor:pointer;
+  transition:transform 0.2s ease;
+  font-size:9px;
+  text-align:center;
+  color:#888;
+}
+.polaroid:nth-child(odd){ transform:rotate(-6deg); }
+.polaroid:nth-child(even){ transform:rotate(5deg); }
+.polaroid:hover{ transform:scale(1.08) rotate(0deg); z-index:5; }
+.polaroid .ph{
+  width:100%; aspect-ratio:1/1;
+  background:repeating-linear-gradient(45deg,#f0e2c8,#f0e2c8 6px,#e6d4ae 6px,#e6d4ae 12px);
+  margin-bottom:6px;
+}
+.polaroid img{ width:100%; height:100%; object-fit:cover; }
+.caption{ font-family:'Caveat', cursive; font-size:15px; color:var(--red-dark); margin-top:4px; }
+
+.lightbox{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  padding:20px;
+}
+.lightbox.show{ display:flex; }
+.lightbox-inner{
+  background:white;
+  padding:14px 14px 20px;
+  max-width:320px;
+  border-radius:6px;
+  text-align:center;
+}
+.lightbox-inner .ph{
+  width:100%; aspect-ratio:1/1;
+  background:repeating-linear-gradient(45deg,#f0e2c8,#f0e2c8 8px,#e6d4ae 8px,#e6d4ae 16px);
+  margin-bottom:10px;
+}
+.lightbox-inner .caption{ font-size:18px; }
+.lightbox-close{
+  margin-top:12px;
+  background:var(--red);
+  color:white;
+  border:none;
+  border-radius:100px;
+  padding:8px 20px;
+  font-family:'Baloo 2', sans-serif;
+  cursor:pointer;
+}
+
+/* ---------- MUSIC TOGGLE ---------- */
+.music-btn{
+  position:fixed;
+  top:16px;
+  right:16px;
+  width:40px; height:40px;
+  border-radius:50%;
+  background:var(--red);
+  color:white;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+  z-index:10;
+  box-shadow:0 3px 8px rgba(0,0,0,0.4);
+}
+
+/* ---------- REPLAY ---------- */
+.replay-hearts{ font-size:22px; }
+
+@media (prefers-reduced-motion: reduce){
+  .flame, .gift:hover{ animation:none !important; transform:none !important; }
+}
+
+@media (max-width:380px){
+  .card-inner{ padding:26px 18px 22px; min-height:380px; }
+  .gifts-row{ gap:10px; }
+  .gift{ width:66px; height:66px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+<div class="progress" id="progress">♡ 1 / 9</div>
+<button class="music-btn" id="musicBtn" title="Toggle music">♫</button>
+<audio id="bgMusic" loop>
+  <!-- EDIT: MUSIC — replace with a real mp3 path if you have one -->
+  <source src="birthday-song.mp3" type="audio/mpeg">
+</audio>
+
+<div class="stage" id="stage"></div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <div class="ph" id="lightboxPh"></div>
+    <div class="caption" id="lightboxCaption"></div>
+    <button class="lightbox-close" onclick="closeLightbox()">Close</button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   EDIT ME — all personal content lives in this one config object.
+   Replace text, and swap photo placeholders for real <img> paths
+   by editing the renderScreens() photo-frame lines below where noted.
+   ================================================================ */
+const CONFIG = {
+  name: "Alex",
+  age: "25",
+  mainMessage: "Happy Birthday, Alex!\n\nToday is all about celebrating you — every laugh, every ridiculous story, every little thing that makes you, you. I hope this year brings you everything you've been quietly hoping for.",
+  letter: "Dear Alex,\n\nHappy Birthday! I honestly don't know where to begin because there are so many things I could say about you.\n\nThank you for all the laughs, the random conversations, the silly jokes, and all the little moments that somehow became some of my favourite memories.\n\nYou mean so much to me and I'm really grateful to have you in my life.\n\nHappy Birthday once again.",
+  giftMessages: [
+    "A little reminder that you're appreciated more than you know.",
+    "Remember that one trip we took? Best memory ever.",
+    "Here's to another year of chaos and good times together."
+  ],
+  memories: [
+    { caption: "That day ❤️" },
+    { caption: "Best cake ever 🎂" },
+    { caption: "Us being goofy 😄" },
+    { caption: "Never forget this" }
+  ]
+};
+
+/* ---------- CONFETTI ---------- */
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resize();
+addEventListener('resize', resize);
+const colors = ['#C1272D','#F3A9B4','#FBF3E3','#8C1C21'];
+let particles = [];
+function burstConfetti(x, y, count=110){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x, y,
+      vx:(Math.random()-0.5)*12,
+      vy:(Math.random()-1.6)*12,
+      size:Math.random()*7+4,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,
+      rotSpeed:(Math.random()-0.5)*10,
+      life:0
+    });
+  }
+}
+function burstHearts(x,y,count=14){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x, y,
+      vx:(Math.random()-0.5)*4,
+      vy:-Math.random()*3-2,
+      size:14,
+      heart:true,
+      rot:0, rotSpeed:0,
+      life:0
+    });
+  }
+}
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.vy += p.heart ? 0.02 : 0.32;
+    p.x += p.vx; p.y += p.vy; p.rot += p.rotSpeed; p.life++;
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot*Math.PI/180);
+    if(p.heart){
+      ctx.font = p.size+"px serif";
+      ctx.fillText("♥", -p.size/2, 0);
+      ctx.globalAlpha = Math.max(0, 1 - p.life/120);
+      ctx.fillStyle = "#C1272D";
+      ctx.fillText("♥", -p.size/2, 0);
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+    }
+    ctx.restore();
+  });
+  particles = particles.filter(p => p.life < 300 && p.y < canvas.height+60);
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* ---------- MUSIC ---------- */
+const music = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let musicOn = false;
+
+function setMusicUI(playing){
+  musicOn = playing;
+  musicBtn.textContent = playing ? '❚❚' : '♫';
+}
+
+function tryAutoplay(){
+  const p = music.play();
+  if(p !== undefined){
+    p.then(()=> setMusicUI(true))
+     .catch(()=>{
+        // Autoplay blocked by the browser — start on the first tap/click instead.
+        const startOnInteract = ()=>{
+          music.play().then(()=> setMusicUI(true)).catch(()=>{});
+          document.removeEventListener('click', startOnInteract);
+          document.removeEventListener('touchstart', startOnInteract);
+        };
+        document.addEventListener('click', startOnInteract, { once:true });
+        document.addEventListener('touchstart', startOnInteract, { once:true });
+     });
+  }
+}
+window.addEventListener('DOMContentLoaded', tryAutoplay);
+
+musicBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  if(musicOn){ music.pause(); setMusicUI(false); }
+  else { music.play().then(()=> setMusicUI(true)).catch(()=>{}); }
+});
+
+/* ---------- SCREENS ---------- */
+const stage = document.getElementById('stage');
+const progressEl = document.getElementById('progress');
+let current = 0;
+let noTries = 0;
+let giftsOpened = [false,false,false];
+
+function goTo(index){
+  const screens = document.querySelectorAll('.screen');
+  screens[current].classList.remove('active');
+  screens[current].classList.add('leaving');
+  current = index;
+  screens[current].classList.remove('leaving');
+  requestAnimationFrame(()=> screens[current].classList.add('active'));
+  progressEl.textContent = `♡ ${current+1} / 9`;
+}
+
+function photoBox(label, round=false, sticker=true){
+  // EDIT: PHOTOS — replace the placeholder div below with
+  // <img src="your-photo.jpg" alt="${label}"> to use a real (ideally goofy!) photo.
+  return `<div class="photo-frame${round?' round':''}${sticker?' sticker':''}">${label}<br>(goofy photo)</div>`;
+}
+
+function cornerSticker(pos, label){
+  // EDIT: PHOTOS — small scattered photo, replace inner text with
+  // <img src="your-photo.jpg" alt="${label}"> for a real snapshot.
+  return `<div class="corner-sticker ${pos}">${label}<br>(photo)</div>`;
+}
+
+function renderScreens(){
+  stage.innerHTML = `
+
+  <!-- SCREEN 1 — TEASER -->
+  <div class="screen active">
+    <div class="card"><div class="card-inner split">
+      ${photoBox('Photo of ' + CONFIG.name, true)}
+      ${cornerSticker('tr','Goofy #1')}
+      <div class="text-col">
+        <div class="headline script">I have made something for you</div>
+        <div class="sub">Do you wanna see it?</div>
+        <div class="btn-row">
+          <button class="pill-btn" onclick="goTo(1)">YES ❤️</button>
+          <button class="pill-btn ghost" id="noBtn">NO</button>
+        </div>
+        <div class="hint" id="noHint"></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 2 — CHALLENGE -->
+  <div class="screen">
+    <div class="card"><div class="card-inner split reverse">
+      ${photoBox('Photo of ' + CONFIG.name)}
+      ${cornerSticker('bl','Goofy #2')}
+      <div class="text-col">
+        <div class="headline">HOW DARE YOU?!</div>
+        <div class="sub">(for even hesitating)</div>
+        <div class="btn-row">
+          <button class="pill-btn" id="tryAgainBtn">TRY AGAIN</button>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 3 — EXCITEMENT CHECK -->
+  <div class="screen">
+    <div class="card"><div class="card-inner split">
+      ${photoBox('Photo of ' + CONFIG.name, true)}
+      ${cornerSticker('tl','Goofy #3')}
+      <div class="text-col">
+        <div class="headline">Are you really excited?</div>
+        <div class="btn-row">
+          <button class="pill-btn" id="yes1Btn">YES ❤️</button>
+          <button class="pill-btn" id="yes2Btn">YES ❤️</button>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 4 — GIFTS -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      <div class="headline">Each gift has something for you...</div>
+      <div class="gifts-row">
+        ${[0,1,2].map(i => giftSVG(i)).join('')}
+      </div>
+      <div class="sub">click on the gifts</div>
+      <div id="giftReveal0" class="gift-reveal"></div>
+      <div id="giftReveal1" class="gift-reveal"></div>
+      <div id="giftReveal2" class="gift-reveal"></div>
+      <div class="btn-row">
+        <button class="pill-btn" id="continueGiftsBtn" style="display:none;">CONTINUE ❤️</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 5 — MAIN MESSAGE -->
+  <div class="screen">
+    <div class="card"><div class="card-inner split">
+      ${photoBox('Photo of ' + CONFIG.name)}
+      ${cornerSticker('tr','Goofy #4')}
+      <div class="text-col">
+        <div class="headline script" style="font-size:44px;">HAPPY<br>Birthday</div>
+        <div class="message-text">${CONFIG.mainMessage}</div>
+        <div class="ribbon">${CONFIG.name}</div>
+        <div class="btn-row">
+          <button class="pill-btn" onclick="goTo(5)">Continue →</button>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 6 — MAKE A WISH -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      <div class="headline">MAKE A WISH</div>
+      <div class="cake-wrap">🎂<span class="flame" id="flame">🕯️</span></div>
+      <div class="sub">${CONFIG.age} candles, one big wish</div>
+      <div class="btn-row">
+        <button class="pill-btn" id="blowBtn">BLOW THE CANDLES 🕯️</button>
+      </div>
+      <div class="hint" id="wishHint"></div>
+      <div class="btn-row" id="afterWish" style="display:none;">
+        <button class="pill-btn" onclick="goTo(6)">Continue →</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 7 — MEMORIES -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      <div class="headline">Memories</div>
+      <div class="clothesline">
+        ${CONFIG.memories.map((m,i)=>`
+          <div class="polaroid" onclick="openLightbox(${i})">
+            <div class="ph"></div>
+            <div class="caption">${m.caption}</div>
+          </div>`).join('')}
+      </div>
+      <div class="btn-row">
+        <button class="pill-btn" onclick="goTo(7)">Continue →</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 8 — LETTER -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      ${cornerSticker('tr','Goofy #5')}
+      <div class="headline script">My favourite person</div>
+      <div class="letter">${CONFIG.letter}</div>
+      <div class="btn-row">
+        <button class="pill-btn" onclick="goTo(8)">Continue →</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 9 — FINAL WISH -->
+  <div class="screen">
+    <div class="card"><div class="card-inner split reverse">
+      ${photoBox('Photo of ' + CONFIG.name, true)}
+      ${cornerSticker('bl','Goofy #6')}
+      <div class="text-col">
+        <div class="headline script">May all the good things you've been waiting for finally find you this year ❤️</div>
+        <div class="ribbon">Happy Birthday, ${CONFIG.name} ❤️</div>
+        <div class="btn-row">
+          <button class="pill-btn" id="replayBtn">REPLAY THE SURPRISE</button>
+        </div>
+      </div>
+    </div></div>
+  </div>
+  `;
+}
+
+function giftSVG(i){
+  return `<div class="gift" data-i="${i}" onclick="openGift(${i})">
+    <svg viewBox="0 0 64 64">
+      <rect x="8" y="26" width="48" height="32" rx="4" fill="#C1272D"/>
+      <rect x="8" y="26" width="48" height="10" fill="#8C1C21"/>
+      <rect x="27" y="26" width="10" height="32" fill="#F3A9B4"/>
+      <rect x="4" y="16" width="56" height="12" rx="3" fill="#F3A9B4"/>
+      <circle cx="20" cy="14" r="8" fill="none" stroke="#8C1C21" stroke-width="4"/>
+      <circle cx="44" cy="14" r="8" fill="none" stroke="#8C1C21" stroke-width="4"/>
+    </svg>
+  </div>`;
+}
+
+/* ---------- INTERACTIONS ---------- */
+function attachInteractions(){
+  const noBtn = document.getElementById('noBtn');
+  const noHint = document.getElementById('noHint');
+  const noResponses = ["Hmm... try again 😏","Nope, wrong button 👀","Nice try 😄","Okay fine, click YES 😌"];
+  noBtn.addEventListener('click', ()=>{
+    noTries++;
+    noHint.textContent = noResponses[Math.min(noTries-1, noResponses.length-1)];
+    const angle = (Math.random()-0.5)*160;
+    const dist = 40 + Math.random()*60;
+    noBtn.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+  });
+
+  document.getElementById('tryAgainBtn').addEventListener('click', function(){
+    this.closest('.card').style.animation = 'none';
+    void this.offsetWidth;
+    this.closest('.card').animate(
+      [{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],
+      {duration:300}
+    );
+    setTimeout(()=> goTo(2), 320);
+  });
+
+  document.getElementById('yes1Btn').addEventListener('click', ()=> yesToScreen4());
+  document.getElementById('yes2Btn').addEventListener('click', ()=> yesToScreen4());
+  function yesToScreen4(){
+    const r = document.querySelector('#stage .screen.active').getBoundingClientRect();
+    burstHearts(r.left + r.width/2, r.top + r.height/2);
+    setTimeout(()=> goTo(3), 250);
+  }
+
+  document.getElementById('blowBtn').addEventListener('click', function(){
+    const flame = document.getElementById('flame');
+    flame.classList.add('out');
+    const r = this.getBoundingClientRect();
+    burstConfetti(r.left, r.top, 90);
+    burstHearts(r.left, r.top - 30);
+    document.getElementById('wishHint').textContent = 'Wish made! ✨';
+    this.style.display = 'none';
+    document.getElementById('afterWish').style.display = 'flex';
+  });
+
+  document.getElementById('replayBtn').addEventListener('click', ()=>{
+    goTo(0);
+    noTries = 0;
+    giftsOpened = [false,false,false];
+    setTimeout(renderAndReattach, 500);
+  });
+}
+
+function renderAndReattach(){
+  renderScreens();
+  attachInteractions();
+  document.querySelectorAll('.screen')[0].classList.add('active');
+}
+
+function openGift(i){
+  if(giftsOpened[i]) return;
+  giftsOpened[i] = true;
+  const giftEl = document.querySelector(`.gift[data-i="${i}"]`);
+  giftEl.classList.add('opened');
+  const reveal = document.getElementById('giftReveal'+i);
+  reveal.textContent = CONFIG.giftMessages[i];
+  reveal.classList.add('show');
+  const r = giftEl.getBoundingClientRect();
+  burstConfetti(r.left, r.top, 40);
+  if(giftsOpened.every(Boolean)){
+    document.getElementById('continueGiftsBtn').style.display = 'inline-block';
+    document.getElementById('continueGiftsBtn').onclick = ()=> goTo(4);
+  }
+}
+
+function openLightbox(i){
+  document.getElementById('lightboxCaption').textContent = CONFIG.memories[i].caption;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+}
+
+/* ---------- INIT ---------- */
+renderScreens();
+attachInteractions();
+</script>
+</body>
+</html>
