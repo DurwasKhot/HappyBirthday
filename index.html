@@ -167,11 +167,12 @@ canvas#confetti{
   color:#a0895f;
   text-align:center;
   z-index:6;
+  overflow:hidden;
 }
-.corner-sticker img{ width:100%; height:100%; object-fit:cover; border-radius:4px; }
-.corner-sticker.tr{ top:-26px; right:-22px; transform:rotate(9deg); }
-.corner-sticker.tl{ top:-22px; left:-20px; transform:rotate(-10deg); }
-.corner-sticker.bl{ bottom:-24px; left:-18px; transform:rotate(7deg); width:84px; height:84px; }
+.corner-sticker img{ width:100%; height:100%; object-fit:cover; display:block; }
+.corner-sticker .ph-fallback{ padding:4px; }
+.corner-sticker.left{ bottom:-22px; left:-18px; transform:rotate(-8deg); }
+.corner-sticker.right{ bottom:-22px; right:-18px; transform:rotate(8deg); }
 @media (max-width:520px){
   .corner-sticker{ display:none; }
 }
@@ -217,12 +218,15 @@ canvas#confetti{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:13px;
+  font-size:11px;
   color:#a0895f;
+  text-align:center;
   transform:rotate(-2deg);
   overflow:hidden;
+  flex-shrink:0;
 }
-.photo-frame img{ width:100%; height:100%; object-fit:cover; }
+.photo-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+.photo-frame .ph-fallback{ padding:6px; }
 .photo-frame.round{ border-radius:50%; }
 
 .btn-row{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:auto; }
@@ -394,6 +398,149 @@ canvas#confetti{
   cursor:pointer;
 }
 
+/* ---------- REEL (Instagram-style video moment) ---------- */
+.reel-wrap{
+  position:relative;
+  width:220px;
+  aspect-ratio:9/16;
+  max-height:52vh;
+  background:#111;
+  border-radius:18px;
+  overflow:hidden;
+  margin:0 auto;
+  box-shadow:0 14px 30px rgba(0,0,0,0.4);
+}
+.reel-video{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+.reel-video-fallback{
+  position:absolute; inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  text-align:center;
+  color:#ddd;
+  font-size:11px;
+  line-height:1.5;
+  background:repeating-linear-gradient(45deg,#1a1a1a,#1a1a1a 8px,#0d0d0d 8px,#0d0d0d 16px);
+}
+.reel-top{
+  position:absolute;
+  top:10px; left:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  z-index:3;
+}
+.reel-avatar{
+  width:26px; height:26px;
+  border-radius:50%;
+  background:var(--red);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+  border:2px solid white;
+}
+.reel-username{
+  color:white;
+  font-size:11px;
+  font-weight:600;
+  text-shadow:0 1px 3px rgba(0,0,0,0.6);
+}
+.reel-caption{
+  position:absolute;
+  bottom:14px; left:10px;
+  max-width:150px;
+  color:white;
+  font-size:11px;
+  line-height:1.4;
+  text-shadow:0 1px 3px rgba(0,0,0,0.6);
+  z-index:3;
+}
+.reel-actions{
+  position:absolute;
+  bottom:14px; right:8px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  z-index:3;
+}
+.reel-action{
+  background:none;
+  border:none;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  font-size:20px;
+  cursor:pointer;
+  text-shadow:0 1px 3px rgba(0,0,0,0.6);
+}
+.reel-count{
+  font-size:10px;
+  font-family:'Baloo 2', sans-serif;
+}
+.reel-heart-burst{
+  position:absolute;
+  top:50%; left:50%;
+  font-size:60px;
+  transform:translate(-50%,-50%) scale(0);
+  opacity:0;
+  pointer-events:none;
+  z-index:4;
+}
+.reel-heart-burst.pop{
+  animation:reel-heart-pop 0.7s ease forwards;
+}
+@keyframes reel-heart-pop{
+  0%{ transform:translate(-50%,-50%) scale(0); opacity:0.9; }
+  40%{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
+  100%{ transform:translate(-50%,-50%) scale(1.3); opacity:0; }
+}
+.reel-comments{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  max-height:62%;
+  background:rgba(20,20,20,0.94);
+  border-radius:16px 16px 0 0;
+  transform:translateY(100%);
+  transition:transform 0.3s ease;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+}
+.reel-comments.show{ transform:translateY(0); }
+.reel-comments-header{
+  color:white;
+  font-family:'Baloo 2', sans-serif;
+  font-size:13px;
+  padding:10px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.reel-comments-close{
+  background:none; border:none; color:white; font-size:14px; cursor:pointer;
+}
+.reel-comments-list{
+  overflow-y:auto;
+  padding:10px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.reel-comment{
+  color:#eee;
+  font-size:11.5px;
+  line-height:1.4;
+}
+.reel-comment strong{ color:white; }
+
 /* ---------- MUSIC TOGGLE ---------- */
 .music-btn{
   position:fixed;
@@ -427,7 +574,7 @@ canvas#confetti{
 <body>
 
 <canvas id="confetti"></canvas>
-<div class="progress" id="progress">♡ 1 / 9</div>
+<div class="progress" id="progress">♡ 1 / 10</div>
 <button class="music-btn" id="musicBtn" title="Toggle music">♫</button>
 <audio id="bgMusic" loop>
   <!-- EDIT: MUSIC — replace with a real mp3 path if you have one -->
@@ -461,11 +608,22 @@ const CONFIG = {
     "Here's to another year of chaos and good times together."
   ],
   memories: [
-    { caption: "That day ❤️" },
-    { caption: "Best cake ever 🎂" },
-    { caption: "Us being goofy 😄" },
-    { caption: "Never forget this" }
-  ]
+    { file: "memory-1.jpg", caption: "That day ❤️" },
+    { file: "memory-2.jpg", caption: "Best cake ever 🎂" },
+    { file: "memory-3.jpg", caption: "Us being goofy 😄" },
+    { file: "memory-4.jpg", caption: "Never forget this" }
+  ],
+  reel: {
+    caption: "when the birthday hits different 🎉🎂 #birthdayweek",
+    baseLikes: 128,
+    comments: [
+      { user: "bestie_01", text: "STOP this is too funny 😭" },
+      { user: "mom", text: "my favourite person in the world ❤️" },
+      { user: "random_friend", text: "we don't deserve you honestly" },
+      { user: "old_roommate", text: "iconic behaviour as always 👑" },
+      { user: "cousin_k", text: "happy birthday legend 🎈" }
+    ]
+  }
 };
 
 /* ---------- CONFETTI ---------- */
@@ -576,19 +734,29 @@ function goTo(index){
   current = index;
   screens[current].classList.remove('leaving');
   requestAnimationFrame(()=> screens[current].classList.add('active'));
-  progressEl.textContent = `♡ ${current+1} / 9`;
+  progressEl.textContent = `♡ ${current+1} / 10`;
 }
 
-function photoBox(label, round=false, sticker=true){
-  // EDIT: PHOTOS — replace the placeholder div below with
-  // <img src="your-photo.jpg" alt="${label}"> to use a real (ideally goofy!) photo.
-  return `<div class="photo-frame${round?' round':''}${sticker?' sticker':''}">${label}<br>(goofy photo)</div>`;
+function photoBox(filename, label, round=false, sticker=true){
+  return `<div class="photo-frame${round?' round':''}${sticker?' sticker':''}">
+    <img src="images/${filename}" alt="${label}"
+      onerror="this.remove(); this.parentElement.querySelector('.ph-fallback').style.display='block';">
+    <span class="ph-fallback" style="display:none;">${label}<br><small>images/${filename}</small></span>
+  </div>`;
 }
 
-function cornerSticker(pos, label){
-  // EDIT: PHOTOS — small scattered photo, replace inner text with
-  // <img src="your-photo.jpg" alt="${label}"> for a real snapshot.
-  return `<div class="corner-sticker ${pos}">${label}<br>(photo)</div>`;
+function cornerSticker(pos, filename, label){
+  return `<div class="corner-sticker ${pos}">
+    <img src="images/${filename}" alt="${label}"
+      onerror="this.remove(); this.parentElement.querySelector('.ph-fallback').style.display='block';">
+    <span class="ph-fallback" style="display:none;">${label}<br><small>images/${filename}</small></span>
+  </div>`;
+}
+
+function goofyPair(n){
+  // Bottom-left and bottom-right goofy photo, shown on every screen except the long message screen.
+  return cornerSticker('left', `goofy-left-${n}.png`, `Goofy left ${n}`)
+       + cornerSticker('right', `goofy-right-${n}.png`, `Goofy right ${n}`);
 }
 
 function renderScreens(){
@@ -597,8 +765,8 @@ function renderScreens(){
   <!-- SCREEN 1 — TEASER -->
   <div class="screen active">
     <div class="card"><div class="card-inner split">
-      ${photoBox('Photo of ' + CONFIG.name, true)}
-      ${cornerSticker('tr','Goofy #1')}
+      ${photoBox('main-1.jpg', 'Photo of ' + CONFIG.name, true)}
+      ${goofyPair(1)}
       <div class="text-col">
         <div class="headline script">I have made something for you</div>
         <div class="sub">Do you wanna see it?</div>
@@ -614,8 +782,8 @@ function renderScreens(){
   <!-- SCREEN 2 — CHALLENGE -->
   <div class="screen">
     <div class="card"><div class="card-inner split reverse">
-      ${photoBox('Photo of ' + CONFIG.name)}
-      ${cornerSticker('bl','Goofy #2')}
+      ${photoBox('main-2.jpg', 'Photo of ' + CONFIG.name)}
+      ${goofyPair(2)}
       <div class="text-col">
         <div class="headline">HOW DARE YOU?!</div>
         <div class="sub">(for even hesitating)</div>
@@ -629,8 +797,8 @@ function renderScreens(){
   <!-- SCREEN 3 — EXCITEMENT CHECK -->
   <div class="screen">
     <div class="card"><div class="card-inner split">
-      ${photoBox('Photo of ' + CONFIG.name, true)}
-      ${cornerSticker('tl','Goofy #3')}
+      ${photoBox('main-3.jpg', 'Photo of ' + CONFIG.name, true)}
+      ${goofyPair(3)}
       <div class="text-col">
         <div class="headline">Are you really excited?</div>
         <div class="btn-row">
@@ -644,6 +812,7 @@ function renderScreens(){
   <!-- SCREEN 4 — GIFTS -->
   <div class="screen">
     <div class="card"><div class="card-inner">
+      ${goofyPair(4)}
       <div class="headline">Each gift has something for you...</div>
       <div class="gifts-row">
         ${[0,1,2].map(i => giftSVG(i)).join('')}
@@ -658,11 +827,10 @@ function renderScreens(){
     </div></div>
   </div>
 
-  <!-- SCREEN 5 — MAIN MESSAGE -->
+  <!-- SCREEN 5 — MAIN MESSAGE (no goofy photos — this is the long message slide) -->
   <div class="screen">
     <div class="card"><div class="card-inner split">
-      ${photoBox('Photo of ' + CONFIG.name)}
-      ${cornerSticker('tr','Goofy #4')}
+      ${photoBox('main-5.jpg', 'Photo of ' + CONFIG.name)}
       <div class="text-col">
         <div class="headline script" style="font-size:44px;">HAPPY<br>Birthday</div>
         <div class="message-text">${CONFIG.mainMessage}</div>
@@ -674,9 +842,67 @@ function renderScreens(){
     </div></div>
   </div>
 
-  <!-- SCREEN 6 — MAKE A WISH -->
+  <!-- SCREEN 6 — REEL (Instagram-style video moment) -->
   <div class="screen">
     <div class="card"><div class="card-inner">
+      ${goofyPair(6)}
+      <div class="headline">One more thing...</div>
+      <div class="reel-wrap" id="reelWrap">
+        <video class="reel-video" id="reelVideo" playsinline muted loop>
+          <source src="videos/reel-1.mp4" type="video/mp4">
+        </video>
+        <div class="reel-video-fallback" id="reelFallback">
+          Add <strong>videos/reel-1.mp4</strong> to show your video here
+        </div>
+
+        <div class="reel-top">
+          <div class="reel-avatar">🎂</div>
+          <div class="reel-username">${CONFIG.name.toLowerCase().replace(/\s+/g,'')}_bday</div>
+        </div>
+
+        <div class="reel-caption">${CONFIG.reel.caption}</div>
+
+        <div class="reel-actions">
+          <button class="reel-action" id="reelLikeBtn">
+            <span id="reelHeartIcon">🤍</span>
+            <span class="reel-count" id="reelLikeCount">${CONFIG.reel.baseLikes}</span>
+          </button>
+          <button class="reel-action" id="reelCommentBtn">
+            <span>💬</span>
+            <span class="reel-count">${CONFIG.reel.comments.length}</span>
+          </button>
+          <button class="reel-action" id="reelShareBtn">
+            <span>📤</span>
+            <span class="reel-count">Share</span>
+          </button>
+        </div>
+
+        <div class="reel-heart-burst" id="reelHeartBurst">❤️</div>
+
+        <div class="reel-comments" id="reelComments">
+          <div class="reel-comments-header">
+            Comments
+            <button class="reel-comments-close" id="reelCommentsClose">✕</button>
+          </div>
+          <div class="reel-comments-list">
+            ${CONFIG.reel.comments.map(c => `
+              <div class="reel-comment">
+                <strong>${c.user}</strong> ${c.text}
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="sub" style="margin-top:4px;">tap the heart, or check the comments 👆</div>
+      <div class="btn-row">
+        <button class="pill-btn" onclick="goTo(6)">Continue →</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 7 — MAKE A WISH -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      ${goofyPair(7)}
       <div class="headline">MAKE A WISH</div>
       <div class="cake-wrap">🎂<span class="flame" id="flame">🕯️</span></div>
       <div class="sub">${CONFIG.age} candles, one big wish</div>
@@ -685,45 +911,49 @@ function renderScreens(){
       </div>
       <div class="hint" id="wishHint"></div>
       <div class="btn-row" id="afterWish" style="display:none;">
-        <button class="pill-btn" onclick="goTo(6)">Continue →</button>
-      </div>
-    </div></div>
-  </div>
-
-  <!-- SCREEN 7 — MEMORIES -->
-  <div class="screen">
-    <div class="card"><div class="card-inner">
-      <div class="headline">Memories</div>
-      <div class="clothesline">
-        ${CONFIG.memories.map((m,i)=>`
-          <div class="polaroid" onclick="openLightbox(${i})">
-            <div class="ph"></div>
-            <div class="caption">${m.caption}</div>
-          </div>`).join('')}
-      </div>
-      <div class="btn-row">
         <button class="pill-btn" onclick="goTo(7)">Continue →</button>
       </div>
     </div></div>
   </div>
 
-  <!-- SCREEN 8 — LETTER -->
+  <!-- SCREEN 8 — MEMORIES -->
   <div class="screen">
     <div class="card"><div class="card-inner">
-      ${cornerSticker('tr','Goofy #5')}
-      <div class="headline script">My favourite person</div>
-      <div class="letter">${CONFIG.letter}</div>
+      ${goofyPair(8)}
+      <div class="headline">Memories</div>
+      <div class="clothesline">
+        ${CONFIG.memories.map((m,i)=>`
+          <div class="polaroid" onclick="openLightbox(${i})">
+            <div class="ph">
+              <img src="images/${m.file}" alt="${m.caption}"
+                onerror="this.remove();">
+            </div>
+            <div class="caption">${m.caption}</div>
+          </div>`).join('')}
+      </div>
       <div class="btn-row">
         <button class="pill-btn" onclick="goTo(8)">Continue →</button>
       </div>
     </div></div>
   </div>
 
-  <!-- SCREEN 9 — FINAL WISH -->
+  <!-- SCREEN 9 — LETTER -->
+  <div class="screen">
+    <div class="card"><div class="card-inner">
+      ${goofyPair(9)}
+      <div class="headline script">My favourite person</div>
+      <div class="letter">${CONFIG.letter}</div>
+      <div class="btn-row">
+        <button class="pill-btn" onclick="goTo(9)">Continue →</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- SCREEN 10 — FINAL WISH -->
   <div class="screen">
     <div class="card"><div class="card-inner split reverse">
-      ${photoBox('Photo of ' + CONFIG.name, true)}
-      ${cornerSticker('bl','Goofy #6')}
+      ${photoBox('main-9.jpg', 'Photo of ' + CONFIG.name, true)}
+      ${goofyPair(10)}
       <div class="text-col">
         <div class="headline script">May all the good things you've been waiting for finally find you this year ❤️</div>
         <div class="ribbon">Happy Birthday, ${CONFIG.name} ❤️</div>
@@ -735,6 +965,7 @@ function renderScreens(){
   </div>
   `;
 }
+
 
 function giftSVG(i){
   return `<div class="gift" data-i="${i}" onclick="openGift(${i})">
@@ -797,6 +1028,48 @@ function attachInteractions(){
     giftsOpened = [false,false,false];
     setTimeout(renderAndReattach, 500);
   });
+
+  /* ---- Reel screen (Instagram-style, cosmetic only) ---- */
+  const reelVideo = document.getElementById('reelVideo');
+  const reelFallback = document.getElementById('reelFallback');
+  reelVideo.addEventListener('error', ()=>{
+    reelVideo.style.display = 'none';
+    reelFallback.style.display = 'flex';
+  });
+  reelVideo.play().catch(()=>{});
+
+  let reelLiked = false;
+  let reelLikes = CONFIG.reel.baseLikes;
+  const reelLikeBtn = document.getElementById('reelLikeBtn');
+  const reelHeartIcon = document.getElementById('reelHeartIcon');
+  const reelLikeCount = document.getElementById('reelLikeCount');
+  const reelHeartBurst = document.getElementById('reelHeartBurst');
+
+  reelLikeBtn.addEventListener('click', ()=>{
+    reelLiked = !reelLiked;
+    reelLikes += reelLiked ? 1 : -1;
+    reelHeartIcon.textContent = reelLiked ? '❤️' : '🤍';
+    reelLikeCount.textContent = reelLikes;
+    if(reelLiked){
+      reelHeartBurst.classList.remove('pop');
+      void reelHeartBurst.offsetWidth;
+      reelHeartBurst.classList.add('pop');
+    }
+  });
+
+  const reelComments = document.getElementById('reelComments');
+  document.getElementById('reelCommentBtn').addEventListener('click', ()=>{
+    reelComments.classList.add('show');
+  });
+  document.getElementById('reelCommentsClose').addEventListener('click', ()=>{
+    reelComments.classList.remove('show');
+  });
+
+  document.getElementById('reelShareBtn').addEventListener('click', function(){
+    const original = this.innerHTML;
+    this.innerHTML = '<span>✅</span><span class="reel-count">Shared!</span>';
+    setTimeout(()=>{ this.innerHTML = original; }, 1400);
+  });
 }
 
 function renderAndReattach(){
@@ -822,7 +1095,10 @@ function openGift(i){
 }
 
 function openLightbox(i){
-  document.getElementById('lightboxCaption').textContent = CONFIG.memories[i].caption;
+  const m = CONFIG.memories[i];
+  document.getElementById('lightboxCaption').textContent = m.caption;
+  document.getElementById('lightboxPh').innerHTML =
+    `<img src="images/${m.file}" alt="${m.caption}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove();">`;
   document.getElementById('lightbox').classList.add('show');
 }
 function closeLightbox(){
